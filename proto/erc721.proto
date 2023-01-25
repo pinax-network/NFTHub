@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package eth.erc721.v1;
+
+message Transfers {
+  repeated Transfer transfers = 1; 
+}
+
+message Transfer {
+  string contractAddress = 1;
+  string from = 2;
+  string to = 3;
+  string token_id = 4;
+  string trx_hash = 5;
+}
+
+message nftOwner{
+  string owner = 1;
+  string contract_address = 2;
+  string token_id =3;
+}
