@@ -7,12 +7,16 @@ use pb::erc721::Transfers;
 
 use substreams::log;
 use substreams::Hex;
-
+use substreams::store::StoreGet;
 use substreams::errors::Error;
+use substreams::store::StoreGetProto;
+use substreams::store::StoreNew;
+use substreams::store::StoreSet;
+use substreams::store::StoreSetProto;
 use substreams_ethereum::pb::eth::v2 as eth;
 use substreams_ethereum::Event;
 use abi::erc721::events::Transfer as ERC721TransferEvent;
-use substreams_database_change::pb::database::{table_change::Operation, DatabaseChanges,};
+use substreams_database_change::pb::database::{table_change::Operation, DatabaseChanges};
 
 
 
@@ -47,9 +51,22 @@ fn new_erc721_transfer(hash: &[u8],event: ERC721TransferEvent,contract: String) 
     }
 }
 
+#[substreams::handlers::store]
+fn store_NftOwner(transfers: pb::erc721::Transfers,s: StoreSetProto<erc721::NftOwner>) {
+    if transfers.transfers.len() > 0
+     {
+        for transfer in transfers.transfers {
+            let key = transfer.contract_address.clone() + ":" + &transfer.token_id;
+            let data = erc721::NftOwner{owner:transfer.to.clone(),contract_address:transfer.contract_address.clone(),token_id:transfer.token_id.clone()};
+            s.set(1,key,&data);
+        }
+     }
+   
+}
 
 #[substreams::handlers::map]
 pub fn db_out(
+    
    transfers : erc721::Transfers
 ) -> Result<DatabaseChanges, Error> {
     let mut database_changes: DatabaseChanges = Default::default();
@@ -71,9 +88,9 @@ pub fn db_out(
                 database_changes.push_change("nft", &key,1, Operation::Update)
                 .change("owneraddress", (None,transfer.to.clone()))
                 .change("txhash", (None,transfer.trx_hash.clone()));
-                
             }
-       
+
+            
         }
     }
     
