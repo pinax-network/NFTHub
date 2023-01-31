@@ -6,13 +6,13 @@ import appContext from "../Context/AppState";
 import { ethers } from "ethers";
 import erc721abi from "../abi/erc721abi.json";
 import { IpfsImage } from "react-ipfs-image";
-
+import Metamask from "../Component/Metamask";
 export default function Home() {
   const appstate = useContext(appContext);
 
   const [state_nft, setNft] = useState([]);
   const ref_nft = useRef([]);
-  const testAddress = "0008d343091ef8bd3efa730f6aae5a26a285c7a2";
+  const testAddress = "ebd764efaa8a63e9e20b4fbe5b75d35062d58a3e";
   // replace testaddress with  appstate.ref_address.current
   const NFTQUERY = gql`
     query nft {
@@ -78,11 +78,11 @@ export default function Home() {
       {appstate.ref_connected.current ? (
         <div>
           {!loading && appstate.ref_connected.current ? (
-            <div className="flex p-10">
+            <div className="w-full flex p-10 flex-wrap justify-center items-center ">
               {state_nft.map((item) => {
                 return (
-                  <div key={item.contract_address + item.tokenid}>
-                    <div className="flex flex-col justify-center items-center  p-10 border-black border rounded-lg">
+           
+                    <div  key={item.contract_address + item.tokenid} className=" shadow drop-shadow-2xl flex flex-col w-1/5 m-3  justify-center items-center  p-10  border border-gray-100 rounded-lg">
                       {item.metadata.image.substring(0, 5) === "https" ? (
                         <img
                           className="rounded-lg h-1/2"
@@ -90,8 +90,9 @@ export default function Home() {
                           alt=""
                         ></img>
                       ) : (
+                       
                         <IpfsImage
-                          className="rounded-lg w-60 h-60"
+                        className=" rounded-lg"
                           hash={item.metadata.image}
                         ></IpfsImage>
                       )}
@@ -100,11 +101,11 @@ export default function Home() {
                         <div className="text-lg font-bold">
                           {item.metadata.name}
                         </div>
-                        <div>{"Contract : " + item.contract_address}</div>
+                        <div className="truncate text-ellipsis">{"Contract : " + item.contract_address}</div>
                         <div>{"TokenId : " + item.tokenid}</div>
                       </div>
                     </div>
-                  </div>
+                 
                 );
               })}
             </div>
@@ -113,7 +114,15 @@ export default function Home() {
           )}
         </div>
       ) : (
-        <div>Please connect your Metamask Wallet to continue !</div>
+        <div className="w-full h-screen flex flex-col justify-center items-center">
+
+        <div className="text-lg font-bold text-center"> Please connect your Metamask Wallet to continue !</div>
+        <div className="w-32 h-14 flex justify-center items-center mt-5">
+        <Metamask></Metamask>
+        </div>
+       
+
+        </div>
       )}
     </div>
   );

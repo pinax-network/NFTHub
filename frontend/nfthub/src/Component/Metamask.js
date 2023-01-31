@@ -49,7 +49,7 @@ export default function Metamask() {
   return (
     <div
       onClick={appstate.ref_connected.current ? disconnect : Connect}
-      className="rounded-lg bg-blue-500 text-white py-3 px-5 "
+      className="rounded-lg bg-blue-500 w-full h-full text-white  flex justify-center items-center "
     >
       {appstate.ref_connected.current ? appstate.state_address : "Connect"}
     </div>

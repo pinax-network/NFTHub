@@ -20,7 +20,6 @@ binaries:
 modules:
   - name: map_nfttransfers
     kind: map
-    initialBlock: 4945000
     inputs:
       - source: sf.ethereum.type.v2.Block
     output:
@@ -28,17 +27,17 @@ modules:
 
   - name: store_NftOwner
     kind: store
-    initialBlock: 4945000
-    updatePolicy: set
-    valueType: proto:eth.erce721.v1.nftOwner
+    initialBlock: 15845000
+    updatePolicy: add
+    valueType: int64
     inputs:
       - map: map_nfttransfers
 
   - name: db_out
     kind: map
-    initialBlock: 4945000
+    initialBlock: 15845000
     inputs:
       - store: store_NftOwner
-      - source: proto:eth.erc721.v1.Transfers
+      - map : map_nfttransfers
     output:
       type: proto:sf.substreams.database.v1.DatabaseChanges

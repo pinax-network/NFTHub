@@ -20,7 +20,7 @@ binaries:
 modules:
   - name: map_nfttransfers
     kind: map
-    initialBlock: 4945000
+    initialBlock: 15046900
     inputs:
       - source: sf.ethereum.type.v2.Block
     output:
@@ -28,7 +28,7 @@ modules:
 
   - name: db_out
     kind: map
-    initialBlock: 4945000
+    initialBlock: 15046900
     inputs:
       - map: map_nfttransfers
     output:

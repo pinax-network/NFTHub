@@ -7,12 +7,18 @@ use pb::erc721::Transfers;
 
 use substreams::log;
 use substreams::Hex;
-
+use substreams::store::StoreAdd;
+use substreams::store::StoreGet;
+use substreams::store::StoreGetInt64;
+use substreams::store::StoreAddInt64;
 use substreams::errors::Error;
+use substreams::store::StoreNew;
+use substreams::store::StoreSet;
+use substreams::store::StoreSetString;
 use substreams_ethereum::pb::eth::v2 as eth;
 use substreams_ethereum::Event;
 use abi::erc721::events::Transfer as ERC721TransferEvent;
-use substreams_database_change::pb::database::{table_change::Operation, DatabaseChanges,};
+use substreams_database_change::pb::database::{table_change::Operation, DatabaseChanges};
 
 
 
@@ -47,9 +53,21 @@ fn new_erc721_transfer(hash: &[u8],event: ERC721TransferEvent,contract: String) 
     }
 }
 
+#[substreams::handlers::store]
+fn store_NftOwner(transfers: pb::erc721::Transfers,s: StoreAddInt64) {
+    if transfers.transfers.len() > 0
+     {
+        for transfer in transfers.transfers {
+                let key = transfer.contract_address.clone() + ":" + &transfer.token_id;
+                s.add(1, &key, 1);
+        }
+     }
+   
+}
 
 #[substreams::handlers::map]
 pub fn db_out(
+   s: StoreGetInt64,
    transfers : erc721::Transfers
 ) -> Result<DatabaseChanges, Error> {
     let mut database_changes: DatabaseChanges = Default::default();
@@ -57,8 +75,9 @@ pub fn db_out(
     if transfers.transfers.len() > 0{
         for transfer in transfers.transfers{
            let key = transfer.contract_address.clone() + ":" + &transfer.token_id;
-
-            if transfer.from == "0000000000000000000000000000000000000000".to_string()
+            let exist = s.get_last(&key).unwrap();
+            log::info!(&exist.to_string());
+            if exist == 1
             {
                 log::info!("CREATE");
                 database_changes.push_change("nft", &key,1, Operation::Create)
@@ -66,7 +85,8 @@ pub fn db_out(
                 .change("contract_address", (None,transfer.contract_address.clone()))
                 .change("tokenid", (None,transfer.token_id.clone()))
                 .change("txhash", (None,transfer.trx_hash.clone()));
-            }else{
+            }
+            else{
                 log::info!("update");
                 database_changes.push_change("nft", &key,1, Operation::Update)
                 .change("owneraddress", (None,transfer.to.clone()))
