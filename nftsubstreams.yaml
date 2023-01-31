@@ -1,6 +1,6 @@
 specVersion: v0.1.0
 package:
-  name: 'nftsubstreams'
+  name: "nftsubstreams"
   version: v0.1.0
 
 imports:
@@ -25,11 +25,11 @@ modules:
       - source: sf.ethereum.type.v2.Block
     output:
       type: proto:eth.erc721.v1.Transfers
-      
+
   - name: db_out
     kind: map
     initialBlock: 4945000
     inputs:
-      - map : map_nfttransfers
+      - map: map_nfttransfers
     output:
       type: proto:sf.substreams.database.v1.DatabaseChanges
