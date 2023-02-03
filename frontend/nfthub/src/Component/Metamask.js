@@ -1,6 +1,8 @@
 import React, { useContext, useEffect } from "react";
 import { ethers } from "ethers";
 import appContext from "../Context/AppState";
+import Button from "@mui/material/Button";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 export default function Metamask() {
   const appstate = useContext(appContext);
 
@@ -47,11 +49,17 @@ export default function Metamask() {
   }
 
   return (
-    <div
+    <Button
       onClick={appstate.ref_connected.current ? disconnect : Connect}
-      className="rounded-lg bg-blue-500 w-full h-full text-white  flex justify-center items-center "
+      className="rounded-lg bg-blue-700 hover:bg-gray-800 w-full h-full text-white  flex justify-center items-center "
+      variant="contained"
+      startIcon={<AccountBalanceWalletIcon></AccountBalanceWalletIcon>}
     >
-      {appstate.ref_connected.current ? appstate.state_address : "Connect"}
-    </div>
+      {appstate.ref_connected.current
+        ? appstate.state_address.substring(0, 5) +
+          "..." +
+          appstate.state_address.substring(38)
+        : "Connect"}
+    </Button>
   );
 }
