@@ -18,8 +18,8 @@ pub fn rpc_data(method: &str, args: &Vec<Vec<u8>>) -> Vec<u8> {
     for arg in args {
         if arg.len() <= 32 {
             data.extend(vec![0u8].repeat(32 - arg.len()));
-            data.extend(arg);
         }
+        data.extend(arg);
     }
     return data;
 }
