@@ -18,7 +18,7 @@ export default function Home() {
   const [openReceive, setOpenReceive] = useState(false);
   const ref_nft = useRef([]);
   const testAddress = "ebd764efaa8a63e9e20b4fbe5b75d35062d58a3e";
-  // replace testaddress with  appstate.ref_address.current
+  // replace testaddress with  appstate.ref_address.current for the connected wallet
   const NFTQUERY = gql`
     query nft {
       nft(where: { owneraddress: { _eq: "${testAddress}" } }) {

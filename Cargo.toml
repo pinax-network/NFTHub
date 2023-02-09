@@ -15,6 +15,7 @@ substreams = "0.5"
 substreams-database-change = "1.0.0"
 substreams-ethereum = "0.8"
 substreams-ethereum-core = "0.8.0"
+tiny-keccak = "2.0.2"
 
 # Required so that ethabi > ethereum-types build correctly under wasm32-unknown-unknown
 [target.wasm32-unknown-unknown.dependencies]

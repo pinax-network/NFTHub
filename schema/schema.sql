@@ -4,6 +4,7 @@ create table if not exists nft
     owneraddress             text,
     contract_address  text,
     tokenid           text,
+    metadata          text,
     txhash            text
 );
 

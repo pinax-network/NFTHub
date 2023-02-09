@@ -1,6 +1,6 @@
 specVersion: v0.1.0
 package:
-  name: 'nftsubstreams'
+  name: "nftsubstreams"
   version: v0.1.0
 
 imports:
@@ -19,13 +19,14 @@ binaries:
 
 modules:
   - name: map_nfttransfers
+    initialBlock: 15845000
     kind: map
     inputs:
       - source: sf.ethereum.type.v2.Block
     output:
       type: proto:eth.erc721.v1.Transfers
 
-  - name: store_NftOwner
+  - name: store_nbTransfers
     kind: store
     initialBlock: 15845000
     updatePolicy: add
@@ -37,7 +38,7 @@ modules:
     kind: map
     initialBlock: 15845000
     inputs:
-      - store: store_NftOwner
-      - map : map_nfttransfers
+      - store: store_nbTransfers
+      - map: map_nfttransfers
     output:
       type: proto:sf.substreams.database.v1.DatabaseChanges
