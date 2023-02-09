@@ -72,21 +72,32 @@ fn store_nbTransfers(transfers: pb::erc721::Transfers, s: StoreAddInt64) {
 pub fn db_out(s: StoreGetInt64, transfers: erc721::Transfers) -> Result<DatabaseChanges, Error> {
     let mut database_changes: DatabaseChanges = Default::default();
     let mut ipfs_url = "".to_string();
-    if transfers.transfers.len() > 0 {
-        for transfer in transfers.transfers {
-            let key = transfer.contract_address.clone() + ":" + &transfer.token_id;
-            let exist = s.get_last(&key).unwrap();
 
-            let metadata = rpc::fetch_ipfs(RpcCallParams {
+    if transfers.transfers.len() > 0 {
+        let mut arrar_rcp_params: Vec<RpcCallParams> = vec![];
+
+        for transfer in transfers.transfers.clone() {
+            arrar_rcp_params.push(RpcCallParams {
                 to: Hex::decode(transfer.contract_address.clone()).unwrap(),
                 method: "tokenURI(uint256)".to_string(),
                 args: vec![transfer.token_id.clone().as_bytes().to_vec()],
             });
+        }
+
+        let arraymetadata = rpc::fetch_many_ipfs(arrar_rcp_params);
+
+        let mut i = 0;
+        for transfer in transfers.transfers {
+            let metadata = arraymetadata[i].clone();
+            let key = transfer.contract_address.clone() + ":" + &transfer.token_id;
+            let exist = s.get_last(&key).unwrap();
 
             if metadata.is_ok() {
                 let test_utf8 = String::from_utf8(metadata.unwrap());
                 if !test_utf8.is_err() {
-                    ipfs_url = test_utf8.unwrap();
+                    let rawdata = test_utf8.unwrap();
+                    ipfs_url = rpc::clean_url(rawdata);
+                    log::info!(ipfs_url.clone());
                 }
             }
             if exist == 1 {
@@ -97,12 +108,14 @@ pub fn db_out(s: StoreGetInt64, transfers: erc721::Transfers) -> Result<Database
                     .change("contract_address", (None, transfer.contract_address.clone()))
                     .change("tokenid", (None, transfer.token_id.clone()))
                     .change("txhash", (None, transfer.trx_hash.clone()));
+            } else {
                 database_changes
                     .push_change("nft", &key, 1, Operation::Update)
                     .change("owneraddress", (None, transfer.to.clone()))
                     .change("metadata", (None, ipfs_url.clone()))
                     .change("txhash", (None, transfer.trx_hash.clone()));
             }
+            i += 1;
         }
     }
 
