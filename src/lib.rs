@@ -7,19 +7,21 @@ use pb::erc721;
 use pb::erc721::Transfer;
 use pb::erc721::Transfers;
 
+use abi::erc721::events::Transfer as ERC721TransferEvent;
+use num_bigint::BigUint;
+use num_traits::Num;
 use rpc::RpcCallParams;
+use substreams::errors::Error;
 use substreams::log;
-use substreams::Hex;
 use substreams::store::StoreAdd;
+use substreams::store::StoreAddInt64;
 use substreams::store::StoreGet;
 use substreams::store::StoreGetInt64;
-use substreams::store::StoreAddInt64;
-use substreams::errors::Error;
 use substreams::store::StoreNew;
+use substreams::Hex;
+use substreams_database_change::pb::database::{table_change::Operation, DatabaseChanges};
 use substreams_ethereum::pb::eth::v2 as eth;
 use substreams_ethereum::Event;
-use abi::erc721::events::Transfer as ERC721TransferEvent;
-use substreams_database_change::pb::database::{ table_change::Operation, DatabaseChanges };
 
 #[substreams::handlers::map]
 fn map_nfttransfers(blk: eth::Block) -> Result<Transfers, substreams::errors::Error> {
@@ -33,7 +35,11 @@ fn get_transfers<'a>(blk: &'a eth::Block) -> impl Iterator<Item = Transfer> + 'a
         let hash = &receipt.transaction.hash;
         receipt.receipt.logs.iter().flat_map(|log| {
             if let Some(event) = ERC721TransferEvent::match_and_decode(log) {
-                return vec![new_erc721_transfer(hash, event, Hex(&log.address).to_string())];
+                return vec![new_erc721_transfer(
+                    hash,
+                    event,
+                    Hex(&log.address).to_string(),
+                )];
             }
 
             vec![]
@@ -74,21 +80,16 @@ pub fn db_out(s: StoreGetInt64, transfers: erc721::Transfers) -> Result<Database
     let mut ipfs_url = "".to_string();
 
     if transfers.transfers.len() > 0 {
-        let mut arrar_rcp_params: Vec<RpcCallParams> = vec![];
-
-        for transfer in transfers.transfers.clone() {
-            arrar_rcp_params.push(RpcCallParams {
+        for transfer in transfers.transfers {
+            let param = RpcCallParams {
                 to: Hex::decode(transfer.contract_address.clone()).unwrap(),
                 method: "tokenURI(uint256)".to_string(),
-                args: vec![transfer.token_id.clone().as_bytes().to_vec()],
-            });
-        }
+                args: vec![<BigUint as Num>::from_str_radix(&transfer.token_id, 10)
+                    .expect("error")
+                    .to_bytes_be()],
+            };
 
-        let arraymetadata = rpc::fetch_many_ipfs(arrar_rcp_params);
-
-        let mut i = 0;
-        for transfer in transfers.transfers {
-            let metadata = arraymetadata[i].clone();
+            let metadata = rpc::fetch_ipfs(param);
             let key = transfer.contract_address.clone() + ":" + &transfer.token_id;
             let exist = s.get_last(&key).unwrap();
 
@@ -97,7 +98,6 @@ pub fn db_out(s: StoreGetInt64, transfers: erc721::Transfers) -> Result<Database
                 if !test_utf8.is_err() {
                     let rawdata = test_utf8.unwrap();
                     ipfs_url = rpc::clean_url(rawdata);
-                    log::info!(ipfs_url.clone());
                 }
             }
             if exist == 1 {
@@ -105,7 +105,10 @@ pub fn db_out(s: StoreGetInt64, transfers: erc721::Transfers) -> Result<Database
                     .push_change("nft", &key, 1, Operation::Create)
                     .change("owneraddress", (None, transfer.to.clone()))
                     .change("metadata", (None, ipfs_url.clone()))
-                    .change("contract_address", (None, transfer.contract_address.clone()))
+                    .change(
+                        "contract_address",
+                        (None, transfer.contract_address.clone()),
+                    )
                     .change("tokenid", (None, transfer.token_id.clone()))
                     .change("txhash", (None, transfer.trx_hash.clone()));
             } else {
@@ -115,7 +118,6 @@ pub fn db_out(s: StoreGetInt64, transfers: erc721::Transfers) -> Result<Database
                     .change("metadata", (None, ipfs_url.clone()))
                     .change("txhash", (None, transfer.trx_hash.clone()));
             }
-            i += 1;
         }
     }
 

@@ -17,13 +17,14 @@ export default function Home() {
   const [openSendEth, setOpenSendEth] = useState(false);
   const [openReceive, setOpenReceive] = useState(false);
   const ref_nft = useRef([]);
-  const testAddress = "ebd764efaa8a63e9e20b4fbe5b75d35062d58a3e";
+  const testAddress = "4c3898ba139984699cd9621fa539fd18e49e5e27"; //23eb354a934ca440f41b74d4f680a6c4eca7660b
   // replace testaddress with  appstate.ref_address.current for the connected wallet
   const NFTQUERY = gql`
     query nft {
       nft(where: { owneraddress: { _eq: "${testAddress}" } }) {
         contract_address
         tokenid
+        metadata
       }
     }
   `;
@@ -32,6 +33,7 @@ export default function Home() {
 
   useEffect(() => {
     async function getNft() {
+
       data.nft.map(async (item) => {
         const contract = new ethers.Contract(
           item.contract_address,
@@ -40,20 +42,35 @@ export default function Home() {
         );
 
         try {
-          const metadata = await contract.tokenURI(item.tokenid);
-          console.log("metadata,", metadata);
+          const metadata = item.metadata;
+          let url;
+          let jsonmetadata;
+    
           if (metadata) {
-            const url = metadata.replace("ipfs://", "https://ipfs.io/ipfs/");
-            await fetch(url)
-              .then((response) => response.json())
-              .then((data) => {
-                console.log(data);
-                ref_nft.current.push({
-                  contract_address: item.contract_address,
-                  tokenid: item.tokenid,
-                  metadata: data,
+            if (metadata.startsWith("ipfs")) {
+              url = metadata.replace("ipfs://", "https://ipfs.io/ipfs/");
+              await fetch(url)
+                .then((response) => response.json())
+                .then((data) => {
+                  jsonmetadata = data;
                 });
-              });
+            } else if (metadata.startsWith("http")) {
+              await fetch(url)
+                .then((response) => response.json())
+                .then((data) => {
+                  jsonmetadata = data;
+                });
+            } else if (metadata.startsWith("data")) {
+              const parts = metadata.split(",");
+              const data = Buffer.from(parts[1], "base64").toString();
+              jsonmetadata = JSON.parse(data);
+            }
+
+            ref_nft.current.push({
+              contract_address: item.contract_address,
+              tokenid: item.tokenid,
+              metadata: jsonmetadata,
+            });
           }
         } catch (err) {
           console.log("no metadata");
@@ -70,7 +87,10 @@ export default function Home() {
         }
       });
 
+      console.log(ref_nft.current.length)
       setNft(ref_nft.current);
+      
+      console.log(ref_nft.current.length)
     }
     if (!loading) getNft();
   }, [loading, appstate.ref_provider, data]);

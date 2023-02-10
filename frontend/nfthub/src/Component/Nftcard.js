@@ -1,8 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CopyIconButton from "./CopyIconButton";
 export default function Nftcard({ item }) {
-  const imgurl = "https://ipfs.io/ipfs/" + item.metadata.image.substring(7);
-  console.log(imgurl);
+
+  const [state_image,setImage] = useState("");
+
+  useEffect(()=>{
+    let imgurl;
+  console.log(item.metadata);
+  if (item.metadata.image.startsWith("ipfs"))
+  {
+     imgurl = "https://ipfs.io/ipfs/" + item.metadata.image.substring(7);
+  }else{
+    imgurl = item.metadata.image
+  }
+  setImage(imgurl)
+  },[item])
+  
+
+
   return (
     <div
       key={item.contract_address + item.tokenid}
@@ -15,7 +30,7 @@ export default function Nftcard({ item }) {
           alt=""
         ></img>
       ) : (
-        <img alt="" src={imgurl}></img>
+        <img alt="" src={state_image}></img>
       )}
 
       <div className="flex flex-col w-full h-1/2 justify-start ">

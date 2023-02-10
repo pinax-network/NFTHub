@@ -10,6 +10,8 @@ crate-type = ["cdylib"]
 [dependencies]
 ethabi = "18"
 hex-literal = "0.3.4"
+num-bigint = "0.4.3"
+num-traits = "0.2.15"
 prost = "0.11"
 substreams = "0.5"
 substreams-database-change = "1.0.0"

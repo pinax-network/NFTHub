@@ -1,5 +1,5 @@
 use std::str;
-use tiny_keccak::{ Hasher, Keccak };
+use tiny_keccak::{Hasher, Keccak};
 fn method_signature(method: &str) -> Vec<u8> {
     let mut keccak = Keccak::v256();
     let mut output = [0u8; 32];
@@ -18,7 +18,9 @@ pub fn rpc_data(method: &str, args: &Vec<Vec<u8>>) -> Vec<u8> {
     for arg in args {
         if arg.len() <= 32 {
             data.extend(vec![0u8].repeat(32 - arg.len()));
+        } else {
         }
+
         data.extend(arg);
     }
     return data;

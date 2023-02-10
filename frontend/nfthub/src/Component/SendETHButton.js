@@ -2,7 +2,6 @@ import React, { useContext, useRef, useState } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -31,9 +30,6 @@ export default function SendETHButton({ open, setOpen }) {
 
   async function verifyInput() {
     let valid = true;
-
-    console.log(amount.current);
-    console.log(parseFloat(amount.current) === 0);
     if (
       amount.current >= appstate.ref_balance.current ||
       parseFloat(amount.current) === 0

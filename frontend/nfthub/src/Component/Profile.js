@@ -10,7 +10,7 @@ export default function Profile() {
       const eth = await appstate.ref_provider.current.getBalance(
         appstate.ref_address.current
       );
-      console.log(eth);
+      
       appstate.setBalance(ethers.utils.formatEther(eth));
       appstate.ref_balance.current = ethers.utils.formatEther(eth);
     }
