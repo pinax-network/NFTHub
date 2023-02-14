@@ -7,3 +7,4 @@ target/
 /replay.log
 /debug.log
 /contracts/metadata
+/contracts/images
