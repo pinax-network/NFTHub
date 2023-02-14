@@ -6,3 +6,4 @@ target/
 /Cargo.lock
 /replay.log
 /debug.log
+/contracts/metadata

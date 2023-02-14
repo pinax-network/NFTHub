@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import "../Component/NavBar";
 import NavBar from "../Component/NavBar";
-import { useQuery, gql } from "@apollo/client";
+import { gql } from "@apollo/client";
 import appContext from "../Context/AppState";
 import { ethers } from "ethers";
 import erc721abi from "../abi/erc721abi.json";
@@ -16,24 +16,67 @@ export default function Home() {
   const [state_nft, setNft] = useState([]);
   const [openSendEth, setOpenSendEth] = useState(false);
   const [openReceive, setOpenReceive] = useState(false);
+  const [loading,setLoading] = useState(false);
   const ref_nft = useRef([]);
   const testAddress = "4c3898ba139984699cd9621fa539fd18e49e5e27"; //23eb354a934ca440f41b74d4f680a6c4eca7660b
   // replace testaddress with  appstate.ref_address.current for the connected wallet
-  const NFTQUERY = gql`
-    query nft {
-      nft(where: { owneraddress: { _eq: "${testAddress}" } }) {
+  
+
+
+
+
+  useEffect(() => {
+
+
+    
+  async function fetchGraphQL(operationsDoc, operationName, variables) {
+    const result = await fetch(
+      "https://promoted-hound-24.hasura.app/v1/graphql",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          query: operationsDoc,
+          variables: variables,
+          operationName: operationName
+        })
+      }
+    );
+  
+    return await result.json();
+  }
+  
+  const operationsDoc = `
+    query MyQuery {
+      nft(where: {owneraddress: {_eq: "${appstate.ref_address.current}"}}}) {
         contract_address
         tokenid
         metadata
       }
     }
   `;
+  
+  function fetchMyQuery() {
+    return fetchGraphQL(
+      operationsDoc,
+      "MyQuery",
+      {}
+    );
+  }
+  
+  async function startFetchMyQuery() {
+    const { errors, data } = await fetchMyQuery();
+  
+    if (errors) {
+      // handle those errors like a pro
+      console.error(errors);
+    }
+  
+    // do something great with this precious data
+    console.log(data);
+  }
 
-  const { loading, error, data } = useQuery(NFTQUERY);
-
-  useEffect(() => {
     async function getNft() {
-
+      const data = startFetchMyQuery();
       data.nft.map(async (item) => {
         const contract = new ethers.Contract(
           item.contract_address,
@@ -87,15 +130,12 @@ export default function Home() {
         }
       });
 
-      console.log(ref_nft.current.length)
       setNft(ref_nft.current);
-      
-      console.log(ref_nft.current.length)
-    }
-    if (!loading) getNft();
-  }, [loading, appstate.ref_provider, data]);
 
-  if (error) return <p>Error : {error.message}</p>;
+    }
+    if (!loading && appstate.state_connected) getNft();
+  }, [loading, appstate.ref_provider,appstate.state_connected]);
+
   return (
     <div>
       <NavBar></NavBar>
