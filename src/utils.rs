@@ -1,5 +1,10 @@
 use std::str;
-use tiny_keccak::{Hasher, Keccak};
+use base64_url;
+use substreams::log;
+use tiny_keccak::{ Hasher, Keccak };
+use serde_json;
+use serde_json::Value;
+
 fn method_signature(method: &str) -> Vec<u8> {
     let mut keccak = Keccak::v256();
     let mut output = [0u8; 32];
@@ -24,4 +29,24 @@ pub fn rpc_data(method: &str, args: &Vec<Vec<u8>>) -> Vec<u8> {
         data.extend(arg);
     }
     return data;
+}
+
+pub fn decode_data_url(url: String) -> String {
+    let base64_str = &url[29..]; // remove the prefix
+
+    let json = base64_url::decode(&base64_str);
+    if json.is_ok() {
+        return String::from_utf8(json.unwrap()).unwrap();
+    } else {
+        log::info!("mat {}", base64_str.to_string());
+        log::info!("erreur decode");
+        return "".to_string();
+    }
+}
+
+pub fn is_valid_json(json_str: &str) -> bool {
+    match serde_json::from_str::<Value>(json_str) {
+        Ok(_) => true,
+        Err(_) => false,
+    }
 }

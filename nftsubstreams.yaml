@@ -19,7 +19,7 @@ binaries:
 
 modules:
   - name: map_nfttransfers
-    initialBlock: 8486450
+    initialBlock: 8502978
     kind: map
     inputs:
       - source: sf.ethereum.type.v2.Block
@@ -28,7 +28,7 @@ modules:
 
   - name: store_nbTransfers
     kind: store
-    initialBlock: 8486450
+    initialBlock: 8502978
     updatePolicy: add
     valueType: int64
     inputs:
@@ -36,7 +36,7 @@ modules:
 
   - name: db_out
     kind: map
-    initialBlock: 8486450
+    initialBlock: 8502978
     inputs:
       - store: store_nbTransfers
       - map: map_nfttransfers

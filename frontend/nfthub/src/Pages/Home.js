@@ -1,10 +1,8 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import "../Component/NavBar";
 import NavBar from "../Component/NavBar";
-import { gql } from "@apollo/client";
 import appContext from "../Context/AppState";
-import { ethers } from "ethers";
-import erc721abi from "../abi/erc721abi.json";
+import { Buffer } from "buffer";
 import Metamask from "../Component/Metamask";
 import Nftcard from "../Component/Nftcard";
 import Profile from "../Component/Profile";
@@ -17,8 +15,8 @@ export default function Home() {
   const [openSendEth, setOpenSendEth] = useState(false);
   const [openReceive, setOpenReceive] = useState(false);
   const [loading, setLoading] = useState(false);
-  const ref_nft = useRef([]);
-  const testAddress = "af48eed167a2868015f8a6d6f10b37776876bf89";
+  // const ref_nft = useRef([]);
+  // const testAddress = "af48eed167a2868015f8a6d6f10b37776876bf89";
   // replace testaddress with  appstate.ref_address.current for the connected wallet
 
   useEffect(() => {
@@ -46,7 +44,7 @@ export default function Home() {
         )}"}}) {
           contract_address
           tokenid
-          metadata
+          metadata_url 
         }
       }
     `;
@@ -68,13 +66,13 @@ export default function Home() {
       }
 
       async function getNft() {
-        console.log("getNFT");
         const data = await startFetchMyQuery();
+        console.log(data);
         let array = [];
         await Promise.all(
           data.nft.map(async (item) => {
             try {
-              const metadata = item.metadata;
+              const metadata = item.metadata_url;
               let url;
               let jsonmetadata;
 
@@ -119,7 +117,7 @@ export default function Home() {
             }
           })
         );
-
+        console.log(array);
         setNft(array);
         setLoading(false);
       }
@@ -128,7 +126,7 @@ export default function Home() {
         getNft();
       }
     }
-  }, [appstate.ref_provider, appstate.state_connected]);
+  }, [appstate.ref_provider, appstate.state_connected, appstate.ref_address]);
 
   return (
     <div>
@@ -150,6 +148,7 @@ export default function Home() {
             {!loading && appstate.state_connected ? (
               <div className="w-full flex p-10 flex-wrap justify-center items-center ">
                 {state_nft.map((item) => {
+                  console.log(item);
                   return (
                     <Nftcard
                       key={item.contract_address + item.tokenid}

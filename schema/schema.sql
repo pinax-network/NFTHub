@@ -1,10 +1,14 @@
 create table if not exists nft
 (
     id                text not null constraint nft_pk primary key,
-    owneraddress             text,
+    owneraddress      text,
     contract_address  text,
     tokenid           text,
-    metadata          text,
+    metadata_url      text,
+    metadata_json     text,
+    name              text,
+    image             text,
+    attributes        text,
     txhash            text
 );
 
