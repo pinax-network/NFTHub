@@ -1,0 +1,16 @@
+type nftOwner @entity {
+  id: Bytes!
+  owner: String!
+  contract_address: String!
+  token_id: String!
+  metadataUrl: String!
+  txhash: Bytes!
+}
+
+type Metadata @entity {
+  id: Bytes!
+  name: String!
+  description: String!
+  image: String!
+  attributes: String!
+}

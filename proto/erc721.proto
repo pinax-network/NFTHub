@@ -14,8 +14,20 @@ message Transfer {
   string trx_hash = 5;
 }
 
+
+message Metadata{
+  string name = 1;
+  string description =2;
+  string image = 3;
+  string attributes = 4;
+}
+
 message nftOwner{
   string owner = 1;
   string contract_address = 2;
   string token_id =3;
+  string metadataUrl = 4;
+  Metadata metadata = 5;
+  string txhash = 6;
+  
 }
