@@ -117,7 +117,7 @@ fn store_nbTransfers(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::
             }
 
             let key = transfer.contract_address.clone() + ":" + &transfer.token_id;
-            let mut metadata = Metadata {
+            let metadata = Metadata {
                 name: name,
                 description: description,
                 image: image.clone(),

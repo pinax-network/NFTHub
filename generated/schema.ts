@@ -11,44 +11,44 @@ import {
   BigDecimal
 } from "@graphprotocol/graph-ts";
 
-export class nftOwner extends Entity {
-  constructor(id: Bytes) {
+export class nft extends Entity {
+  constructor(id: string) {
     super();
-    this.set("id", Value.fromBytes(id));
+    this.set("id", Value.fromString(id));
   }
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save nftOwner entity without an ID");
+    assert(id != null, "Cannot save nft entity without an ID");
     if (id) {
       assert(
-        id.kind == ValueKind.BYTES,
-        `Entities of type nftOwner must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        id.kind == ValueKind.STRING,
+        `Entities of type nft must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("nftOwner", id.toBytes().toHexString(), this);
+      store.set("nft", id.toString(), this);
     }
   }
 
-  static load(id: Bytes): nftOwner | null {
-    return changetype<nftOwner | null>(store.get("nftOwner", id.toHexString()));
+  static load(id: string): nft | null {
+    return changetype<nft | null>(store.get("nft", id));
   }
 
-  get id(): Bytes {
+  get id(): string {
     let value = this.get("id");
-    return value!.toBytes();
-  }
-
-  set id(value: Bytes) {
-    this.set("id", Value.fromBytes(value));
-  }
-
-  get owner(): string {
-    let value = this.get("owner");
     return value!.toString();
   }
 
-  set owner(value: string) {
-    this.set("owner", Value.fromString(value));
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get owner_address(): string {
+    let value = this.get("owner_address");
+    return value!.toString();
+  }
+
+  set owner_address(value: string) {
+    this.set("owner_address", Value.fromString(value));
   }
 
   get contract_address(): string {
@@ -69,54 +69,13 @@ export class nftOwner extends Entity {
     this.set("token_id", Value.fromString(value));
   }
 
-  get metadataUrl(): string {
-    let value = this.get("metadataUrl");
+  get metadata_url(): string {
+    let value = this.get("metadata_url");
     return value!.toString();
   }
 
-  set metadataUrl(value: string) {
-    this.set("metadataUrl", Value.fromString(value));
-  }
-
-  get txhash(): Bytes {
-    let value = this.get("txhash");
-    return value!.toBytes();
-  }
-
-  set txhash(value: Bytes) {
-    this.set("txhash", Value.fromBytes(value));
-  }
-}
-
-export class Metadata extends Entity {
-  constructor(id: Bytes) {
-    super();
-    this.set("id", Value.fromBytes(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save Metadata entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.BYTES,
-        `Entities of type Metadata must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("Metadata", id.toBytes().toHexString(), this);
-    }
-  }
-
-  static load(id: Bytes): Metadata | null {
-    return changetype<Metadata | null>(store.get("Metadata", id.toHexString()));
-  }
-
-  get id(): Bytes {
-    let value = this.get("id");
-    return value!.toBytes();
-  }
-
-  set id(value: Bytes) {
-    this.set("id", Value.fromBytes(value));
+  set metadata_url(value: string) {
+    this.set("metadata_url", Value.fromString(value));
   }
 
   get name(): string {
@@ -126,15 +85,6 @@ export class Metadata extends Entity {
 
   set name(value: string) {
     this.set("name", Value.fromString(value));
-  }
-
-  get description(): string {
-    let value = this.get("description");
-    return value!.toString();
-  }
-
-  set description(value: string) {
-    this.set("description", Value.fromString(value));
   }
 
   get image(): string {
@@ -153,5 +103,14 @@ export class Metadata extends Entity {
 
   set attributes(value: string) {
     this.set("attributes", Value.fromString(value));
+  }
+
+  get tx_hash(): string {
+    let value = this.get("tx_hash");
+    return value!.toString();
+  }
+
+  set tx_hash(value: string) {
+    this.set("tx_hash", Value.fromString(value));
   }
 }

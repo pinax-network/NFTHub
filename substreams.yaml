@@ -45,6 +45,7 @@ modules:
 
   - name: graph_out
     kind: map
+    initialBlock: 15000000
     inputs:
       - store: store_nbTransfers
         mode: deltas
