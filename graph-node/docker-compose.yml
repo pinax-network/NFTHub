@@ -1,7 +1,7 @@
 version: "3"
 services:
   graph-node:
-    container_name: graph-node-meta
+    container_name: graph-node-nft
     image: graphprotocol/graph-node:v0.30.0-rc.0
     ports:
       - "8000:8000"
@@ -31,7 +31,7 @@ services:
       RUST_BACKTRACE: full
     restart: "on-failure"
   ipfs:
-    container_name: ipfs-meta
+    container_name: ipfs-nft
     image: ipfs/kubo:v0.14.0
     ports:
       - "5001:5001"
@@ -40,7 +40,7 @@ services:
       - ./data/ipfs:/data/ipfs
       - ./data/ipfs-export:/export
   postgres:
-    container_name: postgres-meta
+    container_name: postgres-nft
     image: postgres:14
     ports:
       - "5432:5432"
@@ -58,3 +58,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 15
+  pgweb:
+    container_name: pgweb-nft
+    image: sosedoff/pgweb:0.11.12
+    restart: on-failure
+    ports:
+      - "8081:8081"
+    command: ["pgweb", "--bind=0.0.0.0", "--listen=8081", "--binary-codec=hex"]
+    links:
+      - postgres:postgres
+    environment:
+      - DATABASE_URL=postgres://graph-node:let-me-in@postgres:5432/graph-node?sslmode=disable
+    depends_on:
+      - postgres
