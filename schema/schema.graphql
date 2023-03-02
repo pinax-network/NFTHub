@@ -9,4 +9,3 @@ type nft @entity {
   attributes: String!
   tx_hash: String!
 }
-

@@ -68,7 +68,7 @@ fn new_erc721_transfer(hash: &[u8], event: ERC721TransferEvent, contract: String
 }
 
 #[substreams::handlers::store]
-fn store_nbTransfers(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::NftOwner>) {
+fn store_nftOwner(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::NftOwner>) {
     log::info!("store:");
     if transfers.transfers.len() > 0 {
         for transfer in transfers.transfers {

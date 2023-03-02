@@ -23,7 +23,7 @@ export default function Home() {
     if (appstate.state_connected) {
       async function fetchGraphQL(operationsDoc, operationName, variables) {
         const result = await fetch(
-          "https://promoted-hound-24.hasura.app/v1/graphql",
+          "http://127.0.0.1:8000/subgraphs/name/nftOwner",
           {
             method: "POST",
             body: JSON.stringify({
@@ -39,12 +39,19 @@ export default function Home() {
 
       const operationsDoc = `
       query MyQuery {
-        nft(where: {owneraddress: {_eq: "${appstate.ref_address.current.substring(
-          2
-        )}"}}) {
+        nfts(
+          where: {owner_address_contains_nocase: "${appstate.ref_address.current.substring(
+            2
+          )}"}
+        ) {
           contract_address
-          tokenid
-          metadata_url 
+          id
+          image
+          metadata_url
+          name
+          owner_address
+          token_id
+          tx_hash
         }
       }
     `;
@@ -70,7 +77,7 @@ export default function Home() {
         console.log(data);
         let array = [];
         await Promise.all(
-          data.nft.map(async (item) => {
+          data.nfts.map(async (item) => {
             try {
               const metadata = item.metadata_url;
               let url;
@@ -98,7 +105,7 @@ export default function Home() {
 
                 array.push({
                   contract_address: item.contract_address,
-                  tokenid: item.tokenid,
+                  tokenid: item.token_id,
                   metadata: jsonmetadata,
                 });
               }
@@ -106,7 +113,7 @@ export default function Home() {
               console.log("no metadata");
               array.push({
                 contract_address: item.contract_address,
-                tokenid: item.tokenid,
+                tokenid: item.token_id,
                 metadata: {
                   image:
                     "https://imgs.search.brave.com/4mxyeZd7fPPeyQOHAEOYtN6nX3ZrWXgjECmeZ5a_fX8/rs:fit:612:612:1/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vdmVjdG9y/cy9uby1pbWFnZS1h/dmFpbGFibGUtc2ln/bi12ZWN0b3ItaWQx/MTM4MTc5MTgzP2s9/NiZtPTExMzgxNzkx/ODMmcz02MTJ4NjEy/Jnc9MCZoPXByTVlQ/UDltTFJOcFRwM1hJ/eWtqZUpKOG9DWlJo/YjJpZXo2dktzOGE4/ZUU9",

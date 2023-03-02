@@ -11,7 +11,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const client = new ApolloClient({
-  uri: "https://promoted-hound-24.hasura.app/v1/graphql",
+  uri: "http://127.0.0.1:8000/subgraphs/name/nftOwner",
   cache: new InMemoryCache(),
 });
 
