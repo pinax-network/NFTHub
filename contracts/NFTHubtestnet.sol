@@ -17,7 +17,7 @@ contract NFTHubTestnet is ERC721, ERC721Burnable, Ownable {
     constructor(string memory base_uri_url) ERC721("NFTHubTestnet", "NFTH") {
 
         baseURI= base_uri_url;
-        maxPerWallet = 3;
+        maxPerWallet = 5;
     }
 
     function _baseURI() view internal override returns (string memory) {
@@ -33,7 +33,7 @@ contract NFTHubTestnet is ERC721, ERC721Burnable, Ownable {
     }
 
     function Mint(address to) public{
-        require(balanceOf(msg.sender) < maxPerWallet || msg.sender == owner() );
+        require(balanceOf(msg.sender) < maxPerWallet || msg.sender == owner(), "Erreur require Mint" );
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
