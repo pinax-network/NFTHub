@@ -19,7 +19,7 @@ binaries:
 
 modules:
   - name: map_nfttransfers
-    initialBlock: 8584681
+    initialBlock: 8584680
     kind: map
     inputs:
       - source: sf.ethereum.type.v2.Block
@@ -28,7 +28,7 @@ modules:
 
   - name: store_nftOwner
     kind: store
-    initialBlock: 8584681
+    initialBlock: 8584680
     updatePolicy: set
     valueType: proto:eth.erc721.v1.nftOwner
     inputs:
@@ -36,7 +36,7 @@ modules:
 
   - name: db_out
     kind: map
-    initialBlock: 8584681
+    initialBlock: 8584680
     inputs:
       - store: store_nftOwner
         mode: deltas
@@ -45,7 +45,7 @@ modules:
 
   - name: graph_out
     kind: map
-    initialBlock: 8584681
+    initialBlock: 8584680
     inputs:
       - store: store_nftOwner
         mode: deltas

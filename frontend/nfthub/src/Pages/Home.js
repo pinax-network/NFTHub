@@ -12,6 +12,7 @@ export default function Home() {
   const appstate = useContext(appContext);
 
   const [state_nft, setNft] = useState([]);
+  const filternft_ref = useRef([]);
   const [openSendEth, setOpenSendEth] = useState(false);
   const [openReceive, setOpenReceive] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,11 @@ export default function Home() {
   // replace testaddress with  appstate.ref_address.current for the connected wallet
 
   useEffect(() => {
+    filternft_ref.current = [];
+  }, [appstate.state_connected]);
+
+  useEffect(() => {
+    let interval;
     if (appstate.state_connected) {
       async function fetchGraphQL(operationsDoc, operationName, variables) {
         const result = await fetch(
@@ -55,6 +61,22 @@ export default function Home() {
         }
       }
     `;
+
+      function filternft(array) {
+        let newArray = [];
+        array.forEach((nft) => {
+          if (!filternft_ref.current.some((nfttest) => nfttest.id === nft.id)) {
+            newArray.push(nft);
+          }
+        });
+
+        newArray.sort((a, b) => {
+          if (a.id < b.id) return -1;
+          if (a.id > b.id) return 1;
+          return 0;
+        });
+        setNft(newArray);
+      }
 
       function fetchMyQuery() {
         return fetchGraphQL(operationsDoc, "MyQuery", {});
@@ -124,14 +146,30 @@ export default function Home() {
             }
           })
         );
-        console.log(array);
-        setNft(array);
+        /*let temparray = [
+          {
+            contract_address: "55647d9B6a630452cCdd9851B72B335a82931376",
+            tokenid: 0,
+            metadata: {
+              image:
+                "ipfs://QmQUzqmyrRCdT1Zwdk81i4nGp3hhDNWCnP8BjFonx5exNa/0.png",
+              name: "pinax",
+              description: "description test",
+            },
+          },
+        ];
+        filternft(temparray);*/
+        filternft(array);
         setLoading(false);
       }
       if (appstate.state_connected) {
         setLoading(true);
         getNft();
+        interval = setInterval(() => {
+          getNft();
+        }, 5000);
       }
+      return () => clearInterval(interval);
     }
   }, [appstate.ref_provider, appstate.state_connected, appstate.ref_address]);
 
@@ -155,9 +193,9 @@ export default function Home() {
             {!loading && appstate.state_connected ? (
               <div className="w-full flex p-10 flex-wrap justify-center items-center ">
                 {state_nft.map((item) => {
-                  console.log(item);
                   return (
                     <Nftcard
+                      filternft_ref={filternft_ref}
                       key={item.contract_address + item.tokenid}
                       item={item}
                     ></Nftcard>
