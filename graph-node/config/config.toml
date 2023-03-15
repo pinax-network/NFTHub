@@ -11,6 +11,7 @@ ingestor = "block_ingestor_node"
 [chains.mainnet]
 shard = "primary"
 provider = [
+    { label = "calls", details = { type = "web3call", url = "$SUBSTREAMS_ENDPOINT", features = [ "archive" ] }},
     { label = "block-ingestor", url = "$ETH_MAINNET_RPC", features = ["archive"] },
     { label = "substreams-mainnet", details = { type = "substreams", url = "$SUBSTREAMS_ENDPOINT", token = "$SUBSTREAMS_API_TOKEN" }},
 ]

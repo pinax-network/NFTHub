@@ -1,6 +1,5 @@
 use std::str;
 use base64_url;
-use substreams::log;
 use tiny_keccak::{ Hasher, Keccak };
 use serde_json;
 use serde_json::Value;
@@ -38,8 +37,6 @@ pub fn decode_data_url(url: String) -> String {
     if json.is_ok() {
         return String::from_utf8(json.unwrap()).unwrap();
     } else {
-        log::info!("mat {}", base64_str.to_string());
-        log::info!("erreur decode");
         return "".to_string();
     }
 }

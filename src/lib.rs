@@ -51,13 +51,13 @@ fn get_transfers<'a>(blk: &'a eth::Block) -> impl Iterator<Item = Transfer> + 'a
 }
 
 fn new_erc721_transfer(hash: &[u8], event: ERC721TransferEvent, contract: String) -> Transfer {
-    log::info!(
+    /*  log::info!(
         "Transfer:\n from: {} \n to: {} \n Contract: {} \n token_id: {} \n ",
         Hex(&event.from).to_string(),
         Hex(&event.to).to_string(),
         contract,
         event.token_id.to_string()
-    );
+    );*/
     Transfer {
         contract_address: contract,
         from: Hex(&event.from).to_string(),
@@ -71,13 +71,9 @@ fn new_erc721_transfer(hash: &[u8], event: ERC721TransferEvent, contract: String
 fn store_nftOwner(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::NftOwner>) {
     log::info!("store:");
     if transfers.transfers.len() > 0 {
-        for transfer in transfers.transfers {
-            let mut ipfs_url = "".to_string();
-            let mut json_data = "".to_string();
-            let mut name = "".to_string();
-            let mut description = "".to_string();
-            let mut image = "".to_string();
-            let mut attributes = "".to_string();
+        let mut array_rpc_calls: Vec<RpcCallParams> = vec![];
+        let clonearray = transfers.transfers.clone();
+        for transfer in clonearray {
             let param = RpcCallParams {
                 to: Hex::decode(transfer.contract_address.clone()).unwrap(),
                 method: "tokenURI(uint256)".to_string(),
@@ -89,20 +85,44 @@ fn store_nftOwner(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::Nft
                 ],
             };
 
-            let metadata = rpc::fetch_ipfs(param);
-            log::info!("metadata:");
+            array_rpc_calls.push(param);
+        }
+
+        let array_metadata: Vec<Result<Vec<u8>, String>> = rpc::fetch_many_ipfs(array_rpc_calls);
+
+        let mut index = 0;
+        for transfer in transfers.transfers {
+            let mut ipfs_url = "".to_string();
+            let mut json_data = "".to_string();
+            let mut name = "".to_string();
+            let mut description = "".to_string();
+            let mut image = "".to_string();
+            let mut attributes = "".to_string();
+
+            /*let param = RpcCallParams {
+                to: Hex::decode(transfer.contract_address.clone()).unwrap(),
+                method: "tokenURI(uint256)".to_string(),
+                args: vec![
+                    <BigUint as Num>
+                        ::from_str_radix(&transfer.token_id, 10)
+                        .expect("error")
+                        .to_bytes_be()
+                ],
+            }; */
+            let metadata = array_metadata[index].clone();
+            // let metadata = rpc::fetch_ipfs(param);
             if metadata.is_ok() {
-                log::info!("ok:");
                 let test_utf8 = String::from_utf8(metadata.unwrap());
                 if !test_utf8.is_err() {
                     let rawdata = test_utf8.unwrap();
                     ipfs_url = rpc::clean_url(rawdata);
-                    log::info!("ipfs:{}", ipfs_url.clone());
                 }
             }
             if ipfs_url.len() > 4 {
                 if &ipfs_url[0..4] == "data" {
-                    json_data = utils::decode_data_url(ipfs_url.clone());
+                    if ipfs_url.chars().count() > 29 {
+                        json_data = utils::decode_data_url(ipfs_url.clone());
+                    }
                 }
             }
 
@@ -110,7 +130,6 @@ fn store_nftOwner(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::Nft
                 let json_value: Value = serde_json::from_str(&json_data).unwrap();
 
                 name = json_value["name"].to_string();
-                log::info!("name: {}", name);
                 description = json_value["description"].to_string();
                 image = json_value["image"].to_string();
                 attributes = json_value["attributes"].to_string();
@@ -136,6 +155,8 @@ fn store_nftOwner(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::Nft
                     txhash: transfer.trx_hash,
                 })
             );
+
+            index += 1;
         }
     }
 }

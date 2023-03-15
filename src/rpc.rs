@@ -1,4 +1,5 @@
 use substreams_ethereum::{ pb::eth, rpc };
+use substreams::log;
 use crate::utils::rpc_data;
 #[derive(Debug)]
 pub struct RpcCallParams {
@@ -17,7 +18,7 @@ pub fn fetch_many_ipfs(params: Vec<RpcCallParams>) -> Vec<Result<Vec<u8>, String
             })
             .collect(),
     };
-
+    log::info!("RPC CALL");
     return rpc
         ::eth_call(&rpc_calls)
         .responses.iter()
