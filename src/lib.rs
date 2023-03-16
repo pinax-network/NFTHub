@@ -4,16 +4,18 @@ pub mod rpc;
 pub mod utils;
 #[path = "graph_out.rs"]
 mod graph;
+use std::str::FromStr;
 
+use substreams::scalar::BigInt;
 use pb::erc721;
 use pb::erc721::Metadata;
 use pb::erc721::NftOwner;
 use pb::erc721::Transfer;
 use pb::erc721::Transfers;
 use abi::erc721::events::Transfer as ERC721TransferEvent;
-use num_bigint::BigUint;
-use num_traits::Num;
 use rpc::RpcCallParams;
+use substreams_ethereum::rpc::RpcBatch;
+use rpc::RpcTokenURI;
 use substreams::errors::Error;
 use substreams::log;
 use substreams::store::Deltas;
@@ -71,10 +73,11 @@ fn new_erc721_transfer(hash: &[u8], event: ERC721TransferEvent, contract: String
 fn store_nftOwner(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::NftOwner>) {
     log::info!("store:");
     if transfers.transfers.len() > 0 {
-        let mut array_rpc_calls: Vec<RpcCallParams> = vec![];
+        //let mut array_rpc_calls: Vec<RpcCallParams> = vec![];<
+        let mut array_rpc_calls: Vec<RpcTokenURI> = vec![];
         let clonearray = transfers.transfers.clone();
         for transfer in clonearray {
-            let param = RpcCallParams {
+            /*let param = RpcCallParams {
                 to: Hex::decode(transfer.contract_address.clone()).unwrap(),
                 method: "tokenURI(uint256)".to_string(),
                 args: vec![
@@ -83,16 +86,36 @@ fn store_nftOwner(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::Nft
                         .expect("error")
                         .to_bytes_be()
                 ],
+            };*/
+
+            log::info!("tokenid {}", transfer.token_id.clone());
+            let token_id_bigint = BigInt::from_str(&transfer.token_id).unwrap();
+            let mut token_id_param = BigInt::from(0);
+            if
+                token_id_bigint
+                    .cmp(
+                        &BigInt::from_str(
+                            "40000000000000000000000000000000000000000000000000000000000000000000000000000"
+                        ).unwrap()
+                    )
+                    .is_le()
+            {
+                token_id_param = token_id_bigint;
+            }
+            let param = RpcTokenURI {
+                to: Hex::decode(transfer.contract_address.clone()).unwrap(),
+                tokenid: token_id_param,
             };
 
             array_rpc_calls.push(param);
         }
 
-        let array_metadata: Vec<Result<Vec<u8>, String>> = rpc::fetch_many_ipfs(array_rpc_calls);
+        // let array_metadata: Vec<Result<Vec<u8>, String>> = rpc::fetch_many_ipfs(array_rpc_calls);
+        //let array_metadata: Vec<Result<Vec<u8>, String>> = rpc::fetch_token_uri(array_rpc_calls);
+        let array_metadata = rpc::fetch_token_uri(array_rpc_calls);
 
         let mut index = 0;
         for transfer in transfers.transfers {
-            let mut ipfs_url = "".to_string();
             let mut json_data = "".to_string();
             let mut name = "".to_string();
             let mut description = "".to_string();
@@ -109,15 +132,16 @@ fn store_nftOwner(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::Nft
                         .to_bytes_be()
                 ],
             }; */
-            let metadata = array_metadata[index].clone();
-            // let metadata = rpc::fetch_ipfs(param);
-            if metadata.is_ok() {
-                let test_utf8 = String::from_utf8(metadata.unwrap());
-                if !test_utf8.is_err() {
-                    let rawdata = test_utf8.unwrap();
-                    ipfs_url = rpc::clean_url(rawdata);
-                }
-            }
+
+            let ipfs_url = match
+                RpcBatch::decode::<_, abi::erc721::functions::TokenUri>(&array_metadata[index])
+            {
+                Some(data) => data,
+                None => { "".to_string() }
+            };
+
+            log::info!("id: {} lien: {}", transfer.token_id.clone(), ipfs_url.clone());
+
             if ipfs_url.len() > 4 {
                 if &ipfs_url[0..4] == "data" {
                     if ipfs_url.chars().count() > 29 {

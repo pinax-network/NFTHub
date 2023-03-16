@@ -1,5 +1,7 @@
-use substreams_ethereum::{ pb::eth, rpc };
-use substreams::log;
+use substreams_ethereum::{ pb::eth::{ self, rpc::RpcResponse }, rpc };
+use crate::abi::erc721;
+use substreams::{ log, pb::substreams::response };
+use substreams_ethereum::rpc::RpcBatch;
 use crate::utils::rpc_data;
 #[derive(Debug)]
 pub struct RpcCallParams {
@@ -8,6 +10,10 @@ pub struct RpcCallParams {
     pub args: Vec<Vec<u8>>,
 }
 
+pub struct RpcTokenURI {
+    pub to: Vec<u8>,
+    pub tokenid: substreams::scalar::BigInt,
+}
 pub fn fetch_many_ipfs(params: Vec<RpcCallParams>) -> Vec<Result<Vec<u8>, String>> {
     let rpc_calls = eth::rpc::RpcCalls {
         calls: params
@@ -33,6 +39,26 @@ pub fn fetch_many_ipfs(params: Vec<RpcCallParams>) -> Vec<Result<Vec<u8>, String
         .collect();
 }
 
+pub fn fetch_token_uri(params: Vec<RpcTokenURI>) -> Vec<RpcResponse> {
+    let mut response = Vec::new();
+    let mut batch = RpcBatch::new();
+
+    for (i, call) in params.iter().enumerate() {
+        batch = batch.add(
+            erc721::functions::TokenUri { token_id: call.tokenid.clone() },
+            call.to.clone()
+        );
+
+        if (i + 1) % 50 == 0 || i == params.len() - 1 {
+            let batch_response = batch.execute().unwrap().responses;
+            response.extend(batch_response);
+
+            batch = RpcBatch::new();
+        }
+    }
+
+    return response;
+}
 pub fn fetch_ipfs(param: RpcCallParams) -> Result<Vec<u8>, String> {
     return fetch_many_ipfs(vec![param]).into_iter().next().unwrap();
 }
