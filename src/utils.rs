@@ -35,7 +35,12 @@ pub fn decode_data_url(url: String) -> String {
 
     let json = base64_url::decode(&base64_str);
     if json.is_ok() {
-        return String::from_utf8(json.unwrap()).unwrap();
+        let data = String::from_utf8(json.unwrap());
+        if data.is_ok(){
+            return data.unwrap();
+        }else {
+            return "".to_string(); 
+        }
     } else {
         return "".to_string();
     }

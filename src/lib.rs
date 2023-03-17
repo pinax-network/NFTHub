@@ -13,11 +13,9 @@ use pb::erc721::NftOwner;
 use pb::erc721::Transfer;
 use pb::erc721::Transfers;
 use abi::erc721::events::Transfer as ERC721TransferEvent;
-use rpc::RpcCallParams;
 use substreams_ethereum::rpc::RpcBatch;
 use rpc::RpcTokenURI;
 use substreams::errors::Error;
-use substreams::log;
 use substreams::store::Deltas;
 use substreams::store::DeltaProto;
 use substreams::pb::substreams::store_delta::Operation as OperationDelta;
@@ -71,7 +69,6 @@ fn new_erc721_transfer(hash: &[u8], event: ERC721TransferEvent, contract: String
 
 #[substreams::handlers::store]
 fn store_nftOwner(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::NftOwner>) {
-    log::info!("store:");
     if transfers.transfers.len() > 0 {
         //let mut array_rpc_calls: Vec<RpcCallParams> = vec![];<
         let mut array_rpc_calls: Vec<RpcTokenURI> = vec![];
@@ -87,8 +84,6 @@ fn store_nftOwner(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::Nft
                         .to_bytes_be()
                 ],
             };*/
-
-            log::info!("tokenid {}", transfer.token_id.clone());
             let token_id_bigint = BigInt::from_str(&transfer.token_id).unwrap();
             let mut token_id_param = BigInt::from(0);
             if
@@ -139,8 +134,6 @@ fn store_nftOwner(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::Nft
                 Some(data) => data,
                 None => { "".to_string() }
             };
-
-            log::info!("id: {} lien: {}", transfer.token_id.clone(), ipfs_url.clone());
 
             if ipfs_url.len() > 4 {
                 if &ipfs_url[0..4] == "data" {

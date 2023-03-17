@@ -1,6 +1,5 @@
 use substreams_ethereum::{ pb::eth::{ self, rpc::RpcResponse }, rpc };
 use crate::abi::erc721;
-use substreams::{ log, pb::substreams::response };
 use substreams_ethereum::rpc::RpcBatch;
 use crate::utils::rpc_data;
 #[derive(Debug)]
@@ -24,7 +23,6 @@ pub fn fetch_many_ipfs(params: Vec<RpcCallParams>) -> Vec<Result<Vec<u8>, String
             })
             .collect(),
     };
-    log::info!("RPC CALL");
     return rpc
         ::eth_call(&rpc_calls)
         .responses.iter()
