@@ -8,3 +8,5 @@ target/
 /debug.log
 /contracts/metadata
 /contracts/images
+/graph-node/data
+/contracts/metadata
