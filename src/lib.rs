@@ -51,13 +51,6 @@ fn get_transfers<'a>(blk: &'a eth::Block) -> impl Iterator<Item = Transfer> + 'a
 }
 
 fn new_erc721_transfer(hash: &[u8], event: ERC721TransferEvent, contract: String) -> Transfer {
-    /*  log::info!(
-        "Transfer:\n from: {} \n to: {} \n Contract: {} \n token_id: {} \n ",
-        Hex(&event.from).to_string(),
-        Hex(&event.to).to_string(),
-        contract,
-        event.token_id.to_string()
-    );*/
     Transfer {
         contract_address: contract,
         from: Hex(&event.from).to_string(),
@@ -70,43 +63,19 @@ fn new_erc721_transfer(hash: &[u8], event: ERC721TransferEvent, contract: String
 #[substreams::handlers::store]
 fn store_nftOwner(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::NftOwner>) {
     if transfers.transfers.len() > 0 {
-        //let mut array_rpc_calls: Vec<RpcCallParams> = vec![];<
         let mut array_rpc_calls: Vec<RpcTokenURI> = vec![];
         let clonearray = transfers.transfers.clone();
         for transfer in clonearray {
-            /*let param = RpcCallParams {
-                to: Hex::decode(transfer.contract_address.clone()).unwrap(),
-                method: "tokenURI(uint256)".to_string(),
-                args: vec![
-                    <BigUint as Num>
-                        ::from_str_radix(&transfer.token_id, 10)
-                        .expect("error")
-                        .to_bytes_be()
-                ],
-            };*/
             let token_id_bigint = BigInt::from_str(&transfer.token_id).unwrap();
-            let mut token_id_param = BigInt::from(0);
-            if
-                token_id_bigint
-                    .cmp(
-                        &BigInt::from_str(
-                            "40000000000000000000000000000000000000000000000000000000000000000000000000000"
-                        ).unwrap()
-                    )
-                    .is_le()
-            {
-                token_id_param = token_id_bigint;
-            }
+
             let param = RpcTokenURI {
                 to: Hex::decode(transfer.contract_address.clone()).unwrap(),
-                tokenid: token_id_param,
+                tokenid: token_id_bigint,
             };
 
             array_rpc_calls.push(param);
         }
 
-        // let array_metadata: Vec<Result<Vec<u8>, String>> = rpc::fetch_many_ipfs(array_rpc_calls);
-        //let array_metadata: Vec<Result<Vec<u8>, String>> = rpc::fetch_token_uri(array_rpc_calls);
         let array_metadata = rpc::fetch_token_uri(array_rpc_calls);
 
         let mut index = 0;
@@ -116,17 +85,6 @@ fn store_nftOwner(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::Nft
             let mut description = "".to_string();
             let mut image = "".to_string();
             let mut attributes = "".to_string();
-
-            /*let param = RpcCallParams {
-                to: Hex::decode(transfer.contract_address.clone()).unwrap(),
-                method: "tokenURI(uint256)".to_string(),
-                args: vec![
-                    <BigUint as Num>
-                        ::from_str_radix(&transfer.token_id, 10)
-                        .expect("error")
-                        .to_bytes_be()
-                ],
-            }; */
 
             let ipfs_url = match
                 RpcBatch::decode::<_, abi::erc721::functions::TokenUri>(&array_metadata[index])
