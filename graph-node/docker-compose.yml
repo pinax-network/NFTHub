@@ -2,7 +2,7 @@ version: "3"
 services:
   graph-node:
     container_name: graph-node-nft
-    image: graphprotocol/graph-node:v0.30.0-rc.0
+    image: graphprotocol/graph-node:v0.30.0
     ports:
       - "8000:8000"
       - "8001:8001"
@@ -10,10 +10,12 @@ services:
       - "8030:8030"
       - "8040:8040"
     depends_on:
-      - ipfs
-      - postgres
+      ipfs:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     extra_hosts:
-      - 10.0.0.196:host-gateway
+      - host.docker.internal:host-gateway
     volumes:
       - ./config:/data/config
     environment:
@@ -54,8 +56,8 @@ services:
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "5432"]
-      interval: 30s
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
       timeout: 10s
       retries: 15
   pgweb:
@@ -70,4 +72,5 @@ services:
     environment:
       - DATABASE_URL=postgres://graph-node:let-me-in@postgres:5432/graph-node?sslmode=disable
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
