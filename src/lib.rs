@@ -93,7 +93,7 @@ fn store_nftOwner(transfers: pb::erc721::Transfers, s: StoreSetProto<erc721::Nft
                 None => { "".to_string() }
             };
 
-            if ipfs_url.len() > 4 {
+            if ipfs_url.is_ascii() && ipfs_url.chars().count() > 4 {
                 if &ipfs_url[0..4] == "data" {
                     if ipfs_url.chars().count() > 29 {
                         json_data = utils::decode_data_url(ipfs_url.clone());

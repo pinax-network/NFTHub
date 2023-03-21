@@ -23,7 +23,7 @@ services:
       postgres_db: graph-node
       ipfs: "ipfs:5001"
       GRAPH_LOG: info
-      ethereum: "mainnet:https://eth.rpc.pinax.network:8545"
+      ethereum: "mainnet:https://goerli.rpc.pinax.network:8545/"
       GRAPH_NODE_CONFIG: /data/config/config.toml
       ETH_MAINNET_RPC: "${ETH_MAINNET_RPC}"
       SUBSTREAMS_ENDPOINT: "${SUBSTREAMS_ENDPOINT}"

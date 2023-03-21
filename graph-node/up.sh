@@ -31,7 +31,7 @@ main() {
 
 prepare() {
   if [[ -z "$ETH_MAINNET_RPC" ]]; then
-    export ETH_MAINNET_RPC="https://eth.rpc.pinax.network:8545"
+    export ETH_MAINNET_RPC="https://goerli.rpc.pinax.network:8545/"
   fi
   if [[ -z "$SUBSTREAMS_ENDPOINT" || -z "$SUBSTREAMS_API_TOKEN" ]]; then
     echo "Your environment is not corrrectly configured to launch Docker Compose configuration."
