@@ -906,7 +906,7 @@
                         ethabi::Token::Address(
                             ethabi::Address::from_slice(&self.operator),
                         ),
-                        ethabi::Token::Bool(self.approved.clone()),
+                        ethabi::Token::Bool(self.approved),
                     ],
                 );
                 let mut encoded = Vec::with_capacity(4 + data.len());

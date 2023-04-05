@@ -16,7 +16,6 @@ export default function SendNFTButton({
   open,
   setOpen,
   transferNft,
-  filternft_ref,
 }) {
   const appstate = useContext(appContext);
   const addressTosend = useRef("");
@@ -61,7 +60,6 @@ export default function SendNFTButton({
     }
 
     setTransactionConfirm(true);
-    filternft_ref.current.push(nft);
   }
   return (
     <div>

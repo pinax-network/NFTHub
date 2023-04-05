@@ -4,7 +4,7 @@ import abi from "../abi/erc721abi.json";
 import CopyIconButton from "./CopyIconButton";
 import appContext from "../Context/AppState";
 import SendNFTButton from "./SendNFTButton";
-export default function Nftcard({ item, filternft_ref }) {
+export default function Nftcard({ item }) {
   const [state_image, setImage] = useState("");
   const [open, setOpen] = useState(false);
   const appstate = useContext(appContext);
@@ -73,7 +73,6 @@ export default function Nftcard({ item, filternft_ref }) {
       </div>
       <div className=" opacity-0 w-full h-full flex justify-center items-center group-hover:opacity-100 absolute ">
         <SendNFTButton
-          filternft_ref={filternft_ref}
           nft={item}
           image={state_image}
           open={open}

@@ -9,4 +9,5 @@ target/
 /contracts/metadata
 /contracts/images
 /graph-node/data
+/graph-node/databackup
 /contracts/metadata

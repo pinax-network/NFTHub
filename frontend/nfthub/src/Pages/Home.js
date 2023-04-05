@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "../Component/NavBar";
 import NavBar from "../Component/NavBar";
 import appContext from "../Context/AppState";
@@ -12,17 +12,12 @@ export default function Home() {
   const appstate = useContext(appContext);
 
   const [state_nft, setNft] = useState([]);
-  const filternft_ref = useRef([]);
   const [openSendEth, setOpenSendEth] = useState(false);
   const [openReceive, setOpenReceive] = useState(false);
   const [loading, setLoading] = useState(false);
   // const ref_nft = useRef([]);
   // const testAddress = "af48eed167a2868015f8a6d6f10b37776876bf89";
   // replace testaddress with  appstate.ref_address.current for the connected wallet
-
-  useEffect(() => {
-    filternft_ref.current = [];
-  }, [appstate.state_connected]);
 
   useEffect(() => {
     let interval;
@@ -63,19 +58,12 @@ export default function Home() {
     `;
 
       function filternft(array) {
-        let newArray = [];
-        array.forEach((nft) => {
-          if (!filternft_ref.current.some((nfttest) => nfttest.id === nft.id)) {
-            newArray.push(nft);
-          }
-        });
-
-        newArray.sort((a, b) => {
+        array.sort((a, b) => {
           if (a.id < b.id) return -1;
           if (a.id > b.id) return 1;
           return 0;
         });
-        setNft(newArray);
+        setNft(array);
       }
 
       function fetchMyQuery() {
@@ -195,7 +183,6 @@ export default function Home() {
                 {state_nft.map((item) => {
                   return (
                     <Nftcard
-                      filternft_ref={filternft_ref}
                       key={item.contract_address + item.tokenid}
                       item={item}
                     ></Nftcard>
