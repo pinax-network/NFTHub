@@ -30,6 +30,7 @@ use substreams_entity_change::pb::entity::EntityChanges;
 use serde_json::Value;
 use serde_json;
 use serde::{ Serialize, Deserialize };
+
 #[substreams::handlers::map]
 fn map_nfttransfers(blk: eth::Block) -> Result<Transfers, substreams::errors::Error> {
     Ok(Transfers {
