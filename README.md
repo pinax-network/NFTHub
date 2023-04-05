@@ -41,7 +41,7 @@ if everything works you will see:
 
 ## For Substreams and Subgraph Developpement:
 ### (Optional) Populate your database with postgreSQL sink
-If you don't want to use subgraph and have your own postgreSQL database you can use the substreams postgrSQL sink instead
+If you don't want to use subgraph and have your own postgreSQL database you can use the substreams postgreSQL sink instead
 To start populating your database with NFT data you need to make some modifications:
 - In the substreams.yaml ,  you can choose your desire start point with the initialBlock: xxxxxxxx 
 - Initialize your tables with your database URL (Some Database require sslmode=require at the end of the URL)
