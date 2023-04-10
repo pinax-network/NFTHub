@@ -4,6 +4,13 @@ NFTHub is an open-source platform that allows users to access all their NFT data
 This application offers a web application for users and in the future, a GraphQL API for other dApps that want NFT data.
 All data is indexed using Substreams technologie https://substreams.streamingfast.io/ and is accessible through a GraphQL endpoint. This first iteration only supports ETH NFTs and the MetaMask wallet.
 
+Videos Tutorial:
+- [Why use substreams](https://drive.google.com/file/d/107fAYJN6g4H9SYv9c23cAfPxBOdQKjpy/view?usp=sharing)
+- [Map Tutorial](https://drive.google.com/file/d/12ilvzPsvKceGv7U-St-tKidEOlrSX_-l/view?usp=sharing)
+- [Store Tutorial](https://drive.google.com/file/d/12oL_0RlkAB434G5p5wf7exnSOMI8Fw_V/view?usp=sharing)
+- [ETH_CALL Tutorial](https://drive.google.com/file/d/12GAgV3mtfKaxJZ1-d2LVwzEiVOZGEPu1/view?usp=sharing)
+
+
 ### Requirement
 - [Install Docker](https://www.docker.com/)
 - [Install Rust language](https://www.rust-lang.org/)
